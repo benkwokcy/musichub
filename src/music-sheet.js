@@ -1,6 +1,6 @@
-let fs = require('fs');
+var fs = require('fs');
+var path = require("path");
 let opensheetmusicdisplay = require("../node_modules/opensheetmusicdisplay/build/opensheetmusicdisplay.min.js");
-let path = require("path");
 
 fs.readFile(path.resolve(__dirname, './sample/riverflowsinyou.musicxml'), 'utf8', function(err, content) {
   let osmd1 = new opensheetmusicdisplay.OpenSheetMusicDisplay(
