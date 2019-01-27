@@ -24,7 +24,7 @@ const createWindow = () => {
   initialSetup(() => mainWindow.loadURL(`file://${__dirname}/index.html`));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools(); // Turn off when building for production
+  // mainWindow.webContents.openDevTools(); // Turn off when building for production
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
