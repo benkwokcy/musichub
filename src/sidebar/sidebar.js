@@ -157,13 +157,13 @@ function removeCommitFromArray(commit, commitArray) {
 }
 
 document.getElementById("home").addEventListener('click', (event) => {
-  $('.ui.wide.sidebar').sidebar('setting', 'transition', 'push').sidebar('toggle');
+  $('.ui.wide.sidebar').sidebar('setting', 'transition', 'push').sidebar('setting', 'dimPage', false).sidebar('toggle');
 }, false);
 
 document.addEventListener('keyup', (event) => {
   /* g */
   if (event.keyCode === 71) {
-    $('.ui.wide.sidebar').sidebar('setting', 'transition', 'push').sidebar('toggle');
+    $('.ui.wide.sidebar').sidebar('setting', 'transition', 'push').sidebar('setting', 'dimPage', false).sidebar('toggle');
   }
 }, false);
 
