@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron';
+var fs = require('fs');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -20,7 +21,7 @@ const createWindow = () => {
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools(); // Turn off when building for production
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
@@ -55,3 +56,55 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+initialSetup()
+
+/********************************
+ *         INITIAL SETUP        *
+ ********************************/
+
+// The first time the app is run, prompt user to configure score path.
+// This configuration will be stored in the environment's user data folder.
+// ex for Mac: /Users/<userName>/Library/Application Support/Electron
+function initialSetup() {
+	let configPath = app.getPath("appData") + "/musichub/configuration.json"; // hardcoded
+  // let configPath = app.getPath("userData") + "/configuration.json"; // non-hardcoded but defaults to Electron folder
+  console.log(configPath);
+	if (isConfigExists(configPath)) { 
+		return; 
+	}
+
+	let userSettings = getUserSettings();
+	userSettings = JSON.stringify(userSettings, null, 4);
+	createConfigurationFile(configPath, userSettings);
+}
+
+function isConfigExists(configPath) {  
+  try {
+    fs.accessSync(configPath, fs.constants.R_OK | fs.constants.W_OK);
+    console.log(`Configuration already exists at ${configPath}`);
+    isConfigExists = true;
+  } catch (err) {
+    console.log(`Configuration file does not exist or could be not accessed at ${configPath}`);
+    isConfigExists = false;
+  }
+  
+	return isConfigExists;
+}
+
+function getUserSettings() {
+  let userSettings = {};
+	userSettings.scorePath = app.getPath("documents") + "/musichub" // Default
+	// TODO: Open modal
+
+	return userSettings;
+}
+
+function createConfigurationFile(filePath, fileContents) {
+	try {
+    fs.writeFileSync(filePath, fileContents);
+    console.log(`Configuration was created at ${filePath}`);
+	} catch(err) {
+		console.log("Cannot write new configuration file.", err);
+	}
+}

@@ -2,7 +2,7 @@
   "name": "musichub",
   "productName": "musichub",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Version control client for MusicXML",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
