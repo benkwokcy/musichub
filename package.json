@@ -49,16 +49,12 @@
   "dependencies": {
     "electron-compile": "^6.4.4",
     "electron-squirrel-startup": "^1.0.0",
-<<<<<<< HEAD
     "express": "^4.16.4",
     "gitgraph.js": "^1.15.0",
     "jquery": "^3.3.1",
     "opensheetmusicdisplay": "^0.6.7",
     "simple-git": "^1.107.0",
     "xml-js": "^1.6.9"
-=======
-    "simple-git": "^1.107.0"
->>>>>>> configuration
   },
   "devDependencies": {
     "babel-plugin-transform-async-to-generator": "^6.24.1",
