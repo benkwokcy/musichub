@@ -1,7 +1,7 @@
 # MusicHub
 A simple graphical version control client for music. 
 
-MusicHub allows you to track your music notation files so you can compare any past versions and instantly see what changes you made. This program currently supports MusicXML which is supported by all major music notation software, including Sibelius, Finale, and MuseScore.
+MusicHub allows you to track your music notation files so you can compare any past versions and instantly see what changes you made. This program supports MusicXML which is supported by all major music notation software, including Sibelius, Finale, and MuseScore.
 
 # Why MusicHub?
 
