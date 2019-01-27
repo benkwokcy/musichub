@@ -6,11 +6,14 @@ var path = require("path");
 
 let commitCount = 0;
 let commitArray = [];
+let config = {};
 
 require("../node_modules/gitgraph.js/build/gitgraph.js");
+let opensheetmusicdisplay = require("../node_modules/opensheetmusicdisplay/build/opensheetmusicdisplay.min.js");
+
 
 fs.readFile(path.resolve(__dirname, './configuration.json'), 'utf8', function(err, content) {
-  let config = JSON.parse(content);
+  config = JSON.parse(content);
   git(config.scorePath).log({file: config.lastScore}, (err, log) => {
     let commitsJSON = {};
     commitsJSON.commits = log.all.map(x => {
@@ -100,9 +103,27 @@ $("#confirmBtn").click(function() {
       commitArray[1] = temp;
     }
 
-    document.getElementById('sheetContainer1').innerText = commitArray[0].message;
-    document.getElementById('sheetContainer2').innerText = commitArray[1].message;
+    let option1 = commitArray[0].sha1 + ':' + config.lastScore;
+    let option2 = commitArray[1].sha1 + ':' + config.lastScore;
 
+    git(config.scorePath).show(option1, function(err, content1) {
+      git(config.scorePath).show(option2, function(err, content2) {
+        let res = parseMusicXML(content1, content2);
+        let osmd1 = new opensheetmusicdisplay.OpenSheetMusicDisplay(
+          "sheetContainer1"
+        );
+        osmd1.load(res.result1).then(function() {
+          osmd1.render();
+        });
+        let osmd2 = new opensheetmusicdisplay.OpenSheetMusicDisplay(
+          "sheetContainer2"
+        );
+        osmd2.load(res.result2).then(function() {
+          osmd2.render();
+        });
+      });
+    });
+    
     $(".ui.sidebar").sidebar("toggle");
   }
 });
