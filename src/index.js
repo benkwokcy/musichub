@@ -125,7 +125,6 @@ function promptUserSettings() {
 
 function initializeRepoIfNecessary(folderPath) {
   git(folderPath).checkIsRepo(function(error, result) {
-    console.log(result);
     if (!result) {
       git(folderPath).init(false, function(error, result) {
         if (!error) {
