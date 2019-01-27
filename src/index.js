@@ -1,5 +1,7 @@
 import { app, BrowserWindow } from 'electron';
+import { readFile } from 'fs';
 var fs = require('fs');
+var git = require('simple-git');
 var path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -64,21 +66,37 @@ initialSetup()
  *         INITIAL SETUP        *
  ********************************/
 
-// The first time the app is run, prompt user to configure score path.
-// This configuration will be stored in the environment's user data folder.
-// ex for Mac: /Users/<userName>/Library/Application Support/Electron
+ /** 
+  * The first time the app is run, prompt user to configure score path.
+  * This configuration will be stored in the environment's user data folder.
+  * ex for Mac: /Users/<userName>/Library/Application Support/musichub
+  * 
+  * Then initialize git repo at the score path.
+  * 
+ */
 function initialSetup() {
-  // check if config exists
+  // create configuration folder if none exists
+  let configFolderPath = path.normalize(app.getPath("appData") + "/musichub");
+  createFolder(configFolderPath);
+  
+  // create configuration file if none exists
   let configPath = path.normalize(app.getPath("appData") + "/musichub/configuration.json"); // hardcoded
-  // let configPath = app.getPath("userData") + "/configuration.json"; // non-hardcoded but defaults to Electron folder
-  console.log(configPath);
+  let userSettings;
 	if (isConfigExists(configPath)) { 
-		return; 
-	}
+    userSettings = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+	} else {
+    userSettings = promptUserSettings();
+    fileContents = JSON.stringify(userSettings, null, 4);
+    console.log("Attempting to create configuration file.");
+    createFile(configPath, fileContents);
+  }
 
-	let userSettings = getUserSettings();
-	userSettings = JSON.stringify(userSettings, null, 4);
-	createConfigurationFile(configPath, userSettings);
+  // create score folder and initialize git repo if none exists
+  console.log(userSettings);
+  let scorePath = userSettings.scorePath;
+  console.log(`Attempting to create score folder ${scorePath}`);
+  createFolder(scorePath);
+  initializeRepoIfNecessary(scorePath);
 }
 
 function isConfigExists(configPath) {  
@@ -94,7 +112,7 @@ function isConfigExists(configPath) {
 	return isConfigExists;
 }
 
-function getUserSettings() {
+function promptUserSettings() {
   let userSettings = {};
 	userSettings.scorePath = path.normalize(app.getPath("documents") + "/musichub"); // Default
   // TODO: Open modal
@@ -102,11 +120,47 @@ function getUserSettings() {
 	return userSettings;
 }
 
-function createConfigurationFile(filePath, fileContents) {
+function initializeRepoIfNecessary(folderPath) {
+  git(folderPath).checkIsRepo(function(error, result) {
+    console.log(result);
+    if (!result) {
+      git(folderPath).init(false, function(error, result) {
+        if (!error) {
+          console.log("Git repository initialized");
+        } else {
+          console.log("Git repo could not be initialized");
+        }
+      })
+    }
+  }); 
+}
+
+function createFolder(folderPath) {
+  let isFolderCreated;
+
+	try {
+    if (fs.existsSync(folderPath)){
+      console.log(`Folder already exists at ${folderPath}`);
+      isFolderCreated = false;
+    } else {
+      fs.mkdirSync(folderPath);
+      console.log(`Folder was created at ${folderPath}`);
+      isFolderCreated = true;
+    }
+	} catch(err) {
+    console.error(`Cannot create new directory at ${folderPath}`);
+    throw err;
+  }  
+
+  return isFolderCreated;
+}
+
+function createFile(filePath, fileContents) {
 	try {
     fs.writeFileSync(filePath, fileContents);
-    console.log(`Configuration was created at ${filePath}`);
+    console.log(`File was created at ${filePath}`);
 	} catch(err) {
-		console.log("Cannot write new configuration file.", err);
-	}
+    console.error("Cannot write new file.");
+    throw err;
+  }
 }
