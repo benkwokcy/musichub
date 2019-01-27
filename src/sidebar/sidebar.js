@@ -25,12 +25,12 @@ function renderGitGraph() {
     config = JSON.parse(content);
 
     if (config.lastScore === undefined) {
-      document.getElementById("sideBarContainer").innerText =
-        "You need to select the current file to track.";
+      document.getElementById("bigSidebar").innerText =
+        "You need to set up score to track";
       return;
     } else {
       git(config.scorePath).log({ file: config.lastScore }, (err, log) => {
-        git(config.scorePath).diff(['--name-only'], (err, diffLog) => {
+        git(config.scorePath).diff(["--name-only"], (err, diffLog) => {
           let gitGraphObj = new window.GitGraph({
             template: "blackarrow", // could be: "blackarrow" or "metro" or `myTemplate` (custom Template object)
             reverseArrow: true, // to make arrows point to ancestors, if displayed
@@ -38,10 +38,10 @@ function renderGitGraph() {
             initCommitOffsetX: -20,
             initCommitOffsetY: -20
           });
-  
+
           // Create branch named "master"
           var master = gitGraphObj.branch("master");
-  
+
           if (log !== null) {
             let commitsJSON = {};
             commitsJSON.commits = log.all.map(x => {
@@ -52,10 +52,10 @@ function renderGitGraph() {
                 message: x.message
               };
             });
-  
+
             commitCount = log.total;
             let commits = commitsJSON.commits;
-  
+
             if (diffLog.includes(require("path").basename(config.lastScore))) {
               newChangeExist = true;
               gitGraphObj.commit({
@@ -135,8 +135,18 @@ $("#confirmBtn").click(function(event) {
 
   if (commitArray.length === 1 && commitCount === 1) {
     document.getElementById("sheetContainer1").innerText = "Empty!";
-    document.getElementById("sheetContainer2").innerText =
-      commitArray[0].message;
+    git(config.scorePath).show(
+      commitArray[0].sha1 + ":" + require("path").basename(config.lastScore),
+      function(err, content) {
+        let osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(
+          "sheetContainer2"
+        );
+        osmd.load(content).then(function() {
+          osmd.render();
+        });
+      }
+    );
+
     $(".ui.sidebar").sidebar("toggle");
     return;
   }
@@ -151,8 +161,10 @@ $("#confirmBtn").click(function(event) {
       commitArray[1] = temp;
     }
 
-    let option1 = commitArray[0].sha1 + ":" + config.lastScore;
-    let option2 = commitArray[1].sha1 + ":" + config.lastScore;
+    let option1 =
+      commitArray[0].sha1 + ":" + require("path").basename(config.lastScore);
+    let option2 =
+      commitArray[1].sha1 + ":" + require("path").basename(config.lastScore);
 
     git(config.scorePath).show(option1, function(err, content1) {
       git(config.scorePath).show(option2, function(err, content2) {
@@ -193,7 +205,7 @@ function removeCommitFromArray(commit, commitArray) {
   return false;
 }
 
-document.getElementById("commitButton").addEventListener('click', () => {
+document.getElementById("commitButton").addEventListener("click", () => {
   let descriptionBox = document.getElementById("descriptionBox");
   let message = descriptionBox.value;
   if (newChangeExist && message.length > 0) {
@@ -210,6 +222,13 @@ document.getElementById("commitButton").addEventListener('click', () => {
   }
 });
 
-document.getElementById("home").addEventListener('click', (event) => {
-  $('.ui.wide.sidebar').sidebar('setting', 'transition', 'push').sidebar('setting', 'dimPage', false).sidebar('toggle');
-}, false);
+document.getElementById("home").addEventListener(
+  "click",
+  event => {
+    $(".ui.wide.sidebar")
+      .sidebar("setting", "transition", "push")
+      .sidebar("setting", "dimPage", false)
+      .sidebar("toggle");
+  },
+  false
+);

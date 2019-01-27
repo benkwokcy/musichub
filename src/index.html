@@ -38,7 +38,7 @@
       </button>
     </div>
     <div id="bigSidebar" class="ui very wide sidebar vertical menu">
-      <canvas id="gitGraph">:x</canvas>
+      <canvas id="gitGraph"></canvas>
       <div class="ui divider"></div>
       <form class="ui form">
         <div id="nameLabel" class="ui pointing below label">
@@ -49,10 +49,18 @@
       <button id="commitButton" class="ui primary button">Save New Version</button>
     </div>
     <div class="ui grid">
-      <div class="eight wide column" id="sheetContainer1"></div>
-      <div class="eight wide column" id="sheetContainer2"></div>
+      <div class="one wide column"></div>
+      <div
+        class="seven wide column"
+        id="sheetContainer1"
+        class="sheetContainer"
+      ></div>
+      <div
+        class="seven wide column"
+        id="sheetContainer2"
+        class="sheetContainer"
+      ></div>
     </div>
-    <div class="ui vertical divider"></div>
 
     <script>
       if (typeof module === "object") {

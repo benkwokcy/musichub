@@ -22,5 +22,5 @@ $('#headerButton').click(() => {
   fs.writeFileSync(configFilePath, JSON.stringify(config));
   let fileName = path.replace(/^.*[\\\/]/, '');
   $('#currentFile').html(fileName);
-  // trigger git graph
+  renderGitGraph();
 });
