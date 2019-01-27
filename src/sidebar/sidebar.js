@@ -16,7 +16,6 @@ require("../node_modules/gitgraph.js/build/gitgraph.js");
 let opensheetmusicdisplay = require("../node_modules/opensheetmusicdisplay/build/opensheetmusicdisplay.min.js");
 
 renderGitGraph();
-renderGitGraph();
 
 function renderGitGraph() {
   let configurationFilePath = require("path").normalize(
@@ -27,7 +26,7 @@ function renderGitGraph() {
 
     if (config.lastScore === undefined) {
       document.getElementById("sideBarContainer").innerText =
-        "You need to set up score to track";
+        "You need to select the current file to track.";
       return;
     } else {
       git(config.scorePath).log({ file: config.lastScore }, (err, log) => {
@@ -60,7 +59,7 @@ function renderGitGraph() {
             if (diffLog.includes(require("path").basename(config.lastScore))) {
               newChangeExist = true;
               gitGraphObj.commit({
-                message: "You have new change to commit!",
+                message: "You have new changes to save!",
                 messageHashDisplay: false,
                 messageAuthorDisplay: false,
                 messageBranchDisplay: false,
@@ -88,7 +87,7 @@ function renderGitGraph() {
           } else {
             newChangeExist = true;
             gitGraphObj.commit({
-              message: "You have new change to commit!",
+              message: "You have new changes to save!",
               messageHashDisplay: false,
               messageAuthorDisplay: false,
               messageBranchDisplay: false,
@@ -108,7 +107,7 @@ function handleCommitClick(commit) {
     removeCommitFromArray(commit, commitArray);
   } else {
     if (commitArray.length >= 2) {
-      alert("Already choose two commits!");
+      alert("You've already selected two versions!");
       return;
     } else {
       commitArray.push(commit);
@@ -125,7 +124,7 @@ function handleCommitClick(commit) {
     commit.dotStrokeColor = pickedCommitColor;
   }
   commit.render();
-  console.log("You just clicked this commit.", commit);
+  console.log("You've just clicked this version.", commit);
 
   commit.messageAuthorDisplay = true;
   commit.messageDisplay = true;
@@ -143,7 +142,7 @@ $("#confirmBtn").click(function(event) {
   }
 
   if (commitArray.length < 2) {
-    alert("You need to pick two commits to compare!");
+    alert("You need to select two versions to compare!");
     return;
   } else {
     if (commitArray[0].date > commitArray[1].date) {
@@ -197,13 +196,17 @@ function removeCommitFromArray(commit, commitArray) {
 document.getElementById("commitButton").addEventListener('click', () => {
   let descriptionBox = document.getElementById("descriptionBox");
   let message = descriptionBox.value;
-  if (newChangeExist) {
+  if (newChangeExist && message.length > 0) {
     git(config.scorePath).add(config.lastScore).commit(message, () => {
       newChangeExist = false;
       renderGitGraph();
     });
   } else {
-    alert("No change available yet!");
+    if (!newChangeExist) {
+      alert("No change is available yet!");
+    } else if (!Boolean(message)) {
+      alert("Enter a description of your changes!");
+    }
   }
 });
 
