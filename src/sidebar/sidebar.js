@@ -156,13 +156,18 @@ function removeCommitFromArray(commit, commitArray) {
   return false;
 }
 
-document.addEventListener(
-  "keyup",
-  event => {
-    /* g */
-    if (event.keyCode === 71) {
-      $(".ui.sidebar").sidebar("toggle");
-    }
-  },
-  false
-);
+document.getElementById("home").addEventListener('click', (event) => {
+  $('.ui.wide.sidebar').sidebar('setting', 'transition', 'push').sidebar('toggle');
+}, false);
+
+document.addEventListener('keyup', (event) => {
+  /* g */
+  if (event.keyCode === 71) {
+    $('.ui.wide.sidebar').sidebar('setting', 'transition', 'push').sidebar('toggle');
+  }
+}, false);
+
+document.getElementById("commitButton").addEventListener("click", (event) => {
+  //document.getElementById("nameBox").getAttribute("value")
+  //whatever commit is
+})

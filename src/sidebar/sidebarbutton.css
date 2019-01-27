@@ -1,0 +1,38 @@
+#home {
+    font-size: 13px;
+    background-color: darkgray
+}
+
+/* #compareButton {
+    margin-top: 100px;
+} */
+
+#smallSidebar {
+    width: 36px;
+    background-color: #24292e;
+}
+
+#nameLabel {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+#nameBox {
+    margin-left: 10px;
+    width: 440px;
+}
+
+#descriptionLabel {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+#descriptionBox {
+    margin-left: 10px;
+    width: 440px;
+}
+
+#commitButton {
+    margin-top: 11px;
+    margin-left: 11px;
+}

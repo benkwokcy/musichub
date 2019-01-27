@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>MusicHub</title>
+  <link href="./sidebar/sidebarbutton.css" rel="stylesheet">
 </head>
 <link rel="stylesheet" type="text/css" href="./semantic/dist/semantic.min.css" />
 <link rel="stylesheet" type="text/css" href="./header/header.css" />
@@ -18,21 +19,44 @@
     </span>
     <button id="headerButton" class="ui button headerComponent">Browse</button>
   </div>
-  <div class="ui very wide sidebar vertical menu">
+  <div id="smallSidebar" class="ui very thin visible sidebar">
+    <button id="home" class="ui icon button">
+      <i class="chevron right icon"></i>
+    </button>
+    <button id="block" class="ui icon button">
+      <i class="block layout icon"></i>
+    </button>
+    <button id="smile" class="ui icon button">
+      <i class="smile icon"></i>
+    </button>
+  </div>
+  <div id="bigSidebar" class="ui very wide sidebar vertical menu">
+    <form class="ui form">
+        <div id="nameLabel" class="ui pointing below label">Enter a name for new commit!</div>
+      <input id="nameBox" type="text" placeholder="Name">
+      <div id="descriptionLabel" class="ui pointing below label">Add description!
+      </div>
+      <input id="descriptionBox" type="text" placeholder="Description">
+    </form>
+    <button id="commitButton" class="ui primary button">
+        Commit
+    </button>
+    <div class="ui divider"></div>
     <button id="confirmBtn" class="ui primary button">Save</button>
-    <canvas id="gitGraph"></canvas>
+    <canvas id="gitGraph">:x</canvas>
   </div>
   <div class="ui grid">
     <div class="eight wide column" id="sheetContainer1"></div>
     <div class="eight wide column" id="sheetContainer2"></div>
   </div>
+  <div class="ui vertical divider"></div>
 
   <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
   <script src="../node_modules/jquery/dist/jquery.min.js"></script>
   <script src="./semantic/dist/semantic.js"></script>
   <script src="../node_modules/xml-js/dist/xml-js.js"></script>
   <script src="./dp.js"></script>
-  <script src="./sidebar.js"></script>
+  <script src="./sidebar/sidebar.js"></script>
   <script src="./header/header.js"></script>
   <script>if (window.module) module = window.module;</script>
 
