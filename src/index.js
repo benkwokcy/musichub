@@ -1,8 +1,7 @@
-import { app, BrowserWindow } from 'electron';
-import { readFile } from 'fs';
+import { app, dialog, BrowserWindow } from 'electron';
 var fs = require('fs');
-var git = require('simple-git');
 var path = require('path');
+var git = require('simple-git');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -20,8 +19,8 @@ const createWindow = () => {
     height: 600,
   });
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
+  // finish set up and load the index.html of the app.
+  initialSetup(() => mainWindow.loadURL(`file://${__dirname}/index.html`));
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools(); // Turn off when building for production
@@ -60,8 +59,6 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-initialSetup()
-
 /********************************
  *         INITIAL SETUP        *
  ********************************/
@@ -72,9 +69,8 @@ initialSetup()
   * ex for Mac: /Users/<userName>/Library/Application Support/musichub
   * 
   * Then initialize git repo at the score path.
-  * 
  */
-function initialSetup() {
+function initialSetup(callback) {
   // create configuration folder if none exists
   let configFolderPath = path.normalize(app.getPath("appData") + "/musichub");
   createFolder(configFolderPath);
@@ -84,19 +80,11 @@ function initialSetup() {
   let userSettings;
 	if (isConfigExists(configPath)) { 
     userSettings = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    createScoreFolder(userSettings.scorePath);
+    callback();
 	} else {
-    userSettings = promptUserSettings();
-    let fileContents = JSON.stringify(userSettings, null, 4);
-    console.log("Attempting to create configuration file.");
-    createFile(configPath, fileContents);
+    userSettings = createConfigurationFileAndScoreFolders(configPath, callback);
   }
-
-  // create score folder and initialize git repo if none exists
-  console.log(userSettings);
-  let scorePath = userSettings.scorePath;
-  console.log(`Attempting to create score folder ${scorePath}`);
-  createFolder(scorePath);
-  initializeRepoIfNecessary(scorePath);
 }
 
 function isConfigExists(configPath) {  
@@ -112,12 +100,51 @@ function isConfigExists(configPath) {
 	return isConfigExists;
 }
 
-function promptUserSettings() {
+function createConfigurationFileAndScoreFolders(configPath, callback) {
   let userSettings = {};
-	userSettings.scorePath = path.normalize(app.getPath("documents") + "/musichub"); // Default
-  // TODO: Open modal
 
-	return userSettings;
+  try {
+    let defaultScorePath = path.normalize(app.getPath("documents") + "/musichub"); // Default
+    let userResponse = dialog.showMessageBox(
+      { 
+        "buttons":["Custom", "Default"],
+        "message": `Set the location for scores to be tracked in.\nBy default, this location is ${defaultScorePath}.`
+      }
+    );
+    if (userResponse === 0) {
+        dialog.showOpenDialog({ 
+        properties:[ "openDirectory", "createDirectory" ] 
+      }, function(userSelectedPaths) {
+        console.log("Files:" + userSelectedPaths);
+        let userSelectedPath = userSelectedPaths[0];
+        userSettings.scorePath = userSelectedPath;
+        console.log(`Score folder is set to ${userSelectedPath}`);
+        let fileContents = JSON.stringify(userSettings, null, 4);
+        console.log("Attempting to create configuration file.");
+        createFile(configPath, fileContents);
+        createScoreFolder(userSettings.scorePath);
+        callback();
+      });
+    } else if (userResponse === 1) {
+      userSettings.scorePath = defaultScorePath;
+      let fileContents = JSON.stringify(userSettings, null, 4);
+      console.log("Attempting to create configuration file.");
+      createFile(configPath, fileContents);
+      createScoreFolder(userSettings.scorePath);
+      callback();
+    }
+  } catch (err) {
+    console.log(`Failed to set score path.`);
+    throw err;
+  }
+
+}
+
+function createScoreFolder(scorePath) {
+  // create score folder and initialize git repo if none exists
+  console.log(`Attempting to create score folder ${scorePath}`);
+  createFolder(scorePath);
+  initializeRepoIfNecessary(scorePath);
 }
 
 function initializeRepoIfNecessary(folderPath) {
