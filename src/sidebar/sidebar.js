@@ -131,8 +131,6 @@ function handleCommitClick(commit) {
 }
 
 $("#confirmBtn").click(function(event) {
-  event.preventDefault();
-
   if (commitArray.length === 1 && commitCount === 1) {
     document.getElementById("sheetContainer1").innerText = "Empty!";
     git(config.scorePath).show(
@@ -148,10 +146,32 @@ $("#confirmBtn").click(function(event) {
     );
 
     $(".ui.sidebar").sidebar("toggle");
-    return;
   }
 
-  if (commitArray.length < 2) {
+  else if (commitArray.length === 1 && newChangeExist) {
+    git(config.scorePath).show(
+      commitArray[0].sha1 + ":" + require("path").basename(config.lastScore),
+      function(err, content1) {
+        fs.readFile(config.lastScore, "utf8", (error, content2) => {
+          let res = parseMusicXML(content1, content2);
+          let osmd1 = new opensheetmusicdisplay.OpenSheetMusicDisplay(
+            "sheetContainer1"
+          );
+          osmd1.load(res.result1).then(function() {
+            osmd1.render();
+          });
+          let osmd2 = new opensheetmusicdisplay.OpenSheetMusicDisplay(
+            "sheetContainer2"
+          );
+          osmd2.load(res.result2).then(function() {
+            osmd2.render();    
+          });
+        });
+      }
+    );
+  }
+
+  else if (commitArray.length < 2) {
     alert("You need to select two versions to compare!");
     return;
   } else {
