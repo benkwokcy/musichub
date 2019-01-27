@@ -1,36 +1,45 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Hello World!</title>
-  </head>
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="./semantic/dist/semantic.min.css"
-  />
 
-  <body>
-    <div class="ui very wide sidebar vertical menu">
-      <button id="confirmBtn" class="ui primary button">Save</button>
-      <canvas id="gitGraph"></canvas>
-    </div>
-    <div class="ui grid">
-      <div class="eight wide column" id="sheetContainer1"></div>
-      <div class="eight wide column" id="sheetContainer2"></div>
-    </div>
+<head>
+  <meta charset="UTF-8" />
+  <title>MusicHub</title>
+</head>
+<link rel="stylesheet" type="text/css" href="./semantic/dist/semantic.min.css" />
+<link rel="stylesheet" type="text/css" href="./header/header.css" />
 
-    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
-    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="./semantic/dist/semantic.js"></script>
-    <script src="../node_modules/xml-js/dist/xml-js.js"></script>
-    <script src="./dp.js"></script>
-    <script src="./sidebar.js"></script>
-    <script>if (window.module) module = window.module;</script>
+<body>
+  <div id="header">
+    <span class="verticalCenterHelper"></span>
+    <img src="../assets/file.png" alt="File Icon" height="30" class="headerComponent">
+    <span class=verticalCenterHelper>
+      <div class="headerComponent grayText">Current file</div>
+      <div id="currentFile" class="headerComponent whiteText"></div>
+    </span>
+    <button id="headerButton" class="ui button headerComponent">Browse</button>
+  </div>
+  <div class="ui very wide sidebar vertical menu">
+    <button id="confirmBtn" class="ui primary button">Save</button>
+    <canvas id="gitGraph"></canvas>
+  </div>
+  <div class="ui grid">
+    <div class="eight wide column" id="sheetContainer1"></div>
+    <div class="eight wide column" id="sheetContainer2"></div>
+  </div>
 
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    <!-- We are using Node.js <script>document.write(process.versions.node)</script>,
+  <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+  <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="./semantic/dist/semantic.js"></script>
+  <script src="../node_modules/xml-js/dist/xml-js.js"></script>
+  <script src="./dp.js"></script>
+  <script src="./sidebar.js"></script>
+  <script src="./header/header.js"></script>
+  <script>if (window.module) module = window.module;</script>
+
+  <!-- All of the Node.js APIs are available in this renderer process. -->
+  <!-- We are using Node.js <script>document.write(process.versions.node)</script>,
     Chromium <script>document.write(process.versions.chrome)</script>,
     and Electron <script>document.write(process.versions.electron)</script>. -->
-  </body>
+</body>
+
 </html>

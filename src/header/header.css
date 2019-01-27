@@ -1,0 +1,30 @@
+#header {
+    background-color: #24292e;
+    border-top: 1px solid #24292e;
+    border-bottom: 1px solid #24292e;
+    height: 50px;
+}
+
+#headerButton {
+    margin-left: 20px;
+}
+
+.verticalCenterHelper {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.headerComponent {
+    vertical-align: middle;
+    margin: 0px 3px;
+}
+
+.grayText {
+    /* color: #d1d5da; */
+    color: gray;
+}
+
+.whiteText {
+    color: white;
+}
