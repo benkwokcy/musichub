@@ -20,6 +20,9 @@ const createWindow = () => {
     height: 600,
   });
 
+  let configPath = path.normalize(app.getPath("appData") + "/musichub/configuration.json"); // hardcoded
+  mainWindow.webContents.send('store-data', configPath);
+
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
@@ -86,7 +89,7 @@ function initialSetup() {
     userSettings = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 	} else {
     userSettings = promptUserSettings();
-    fileContents = JSON.stringify(userSettings, null, 4);
+    let fileContents = JSON.stringify(userSettings, null, 4);
     console.log("Attempting to create configuration file.");
     createFile(configPath, fileContents);
   }

@@ -1,3 +1,4 @@
+import { app, BrowserWindow } from 'electron';
 let pickedCommitColor = "#166ef3";
 let defaultCommitColor = "#ca0914";
 const git = require("simple-git");
@@ -11,49 +12,51 @@ let config = {};
 require("../node_modules/gitgraph.js/build/gitgraph.js");
 let opensheetmusicdisplay = require("../node_modules/opensheetmusicdisplay/build/opensheetmusicdisplay.min.js");
 
-
-fs.readFile(path.resolve(__dirname, './configuration.json'), 'utf8', function(err, content) {
-  config = JSON.parse(content);
-  git(config.scorePath).log({file: config.lastScore}, (err, log) => {
-    let commitsJSON = {};
-    commitsJSON.commits = log.all.map(x => {
-      return {
-        sha: x.hash,
-        author: x.author_name + " <" + x.author_email + ">",
-        date: x.date,
-        message: x.message
-      };
-    });
-
-    commitCount = log.total;
-    let commits = commitsJSON.commits;
-    var config = {
-      template: "blackarrow", // could be: "blackarrow" or "metro" or `myTemplate` (custom Template object)
-      reverseArrow: true, // to make arrows point to ancestors, if displayed
-      orientation: "vertical",
-      initCommitOffsetX: -20,
-      initCommitOffsetY: -20
-    };
-    let gitGraphObj = new window.GitGraph(config);
-  
-    // Create branch named "master"
-    var master = gitGraphObj.branch("master");
-  
-    for (let i = 0; i < commits.length; i++) {
-      gitGraphObj.commit({
-        sha1: commits[i].sha,
-        message: commits[i].message,
-        author: commits[i].author,
-        date: commits[i].date,
-        messageHashDisplay: false,
-        messageAuthorDisplay: false,
-        messageBranchDisplay: false,
-        messageDisplay: true,
-        dotStrokeColor: pickedCommitColor,
-        dotColor: pickedCommitColor,
-        onClick: handleCommitClick,
+var ipcRenderer = require('electron').ipcRenderer;
+ipcRenderer.on('store-data', function (event,store) {
+  fs.readFile(store.scorePath, 'utf8', function(err, content) {
+    config = JSON.parse(content);
+    git(config.scorePath).log({file: config.lastScore}, (err, log) => {
+      let commitsJSON = {};
+      commitsJSON.commits = log.all.map(x => {
+        return {
+          sha: x.hash,
+          author: x.author_name + " <" + x.author_email + ">",
+          date: x.date,
+          message: x.message
+        };
       });
-    }
+  
+      commitCount = log.total;
+      let commits = commitsJSON.commits;
+      var config = {
+        template: "blackarrow", // could be: "blackarrow" or "metro" or `myTemplate` (custom Template object)
+        reverseArrow: true, // to make arrows point to ancestors, if displayed
+        orientation: "vertical",
+        initCommitOffsetX: -20,
+        initCommitOffsetY: -20
+      };
+      let gitGraphObj = new window.GitGraph(config);
+    
+      // Create branch named "master"
+      var master = gitGraphObj.branch("master");
+    
+      for (let i = 0; i < commits.length; i++) {
+        gitGraphObj.commit({
+          sha1: commits[i].sha,
+          message: commits[i].message,
+          author: commits[i].author,
+          date: commits[i].date,
+          messageHashDisplay: false,
+          messageAuthorDisplay: false,
+          messageBranchDisplay: false,
+          messageDisplay: true,
+          dotStrokeColor: pickedCommitColor,
+          dotColor: pickedCommitColor,
+          onClick: handleCommitClick,
+        });
+      }
+    });
   });
 });
 
