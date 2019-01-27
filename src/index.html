@@ -31,6 +31,9 @@
     </button>
   </div>
   <div id="bigSidebar" class="ui very wide sidebar vertical menu">
+    <button id="confirmBtn" class="ui primary button">Save</button>
+    <canvas id="gitGraph">:x</canvas>
+    <div class="ui divider"></div>
     <form class="ui form">
         <div id="nameLabel" class="ui pointing below label">Enter a name for new commit!</div>
       <input id="nameBox" type="text" placeholder="Name">
@@ -41,9 +44,6 @@
     <button id="commitButton" class="ui primary button">
         Commit
     </button>
-    <div class="ui divider"></div>
-    <button id="confirmBtn" class="ui primary button">Save</button>
-    <canvas id="gitGraph">:x</canvas>
   </div>
   <div class="ui grid">
     <div class="eight wide column" id="sheetContainer1"></div>
