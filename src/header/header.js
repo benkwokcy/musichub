@@ -13,7 +13,7 @@ $('#currentFile').ready(() => {
 
 $('#headerButton').click(() => {
   let path = dialog.showOpenDialog({
-    defaultPath: require('path').normalize(remote.app.getPath("documents") + "/musichub"),
+    defaultPath: require('path').normalize(remote.app.getPath("documents") + "/MusicHubScores"),
     properties: ['openFile']
   })[0];
   let configFilePath = require('path').normalize(remote.app.getPath("appData") + "/musichub/configuration.json");
