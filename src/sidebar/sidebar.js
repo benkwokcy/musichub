@@ -1,8 +1,8 @@
 let pickedCommitColor = "#166ef3";
 let defaultCommitColor = "#ca0914";
+let newCommitColor = "#b4881d";
 const git = require("simple-git");
 var fs = require("fs");
-var path = require("path");
 
 const remote = require("electron").remote;
 const app = remote.app;
@@ -10,60 +10,98 @@ const app = remote.app;
 let commitCount = 0;
 let commitArray = [];
 let config = {};
+let newChangeExist = false;
 
 require("../node_modules/gitgraph.js/build/gitgraph.js");
 let opensheetmusicdisplay = require("../node_modules/opensheetmusicdisplay/build/opensheetmusicdisplay.min.js");
 
-fs.readFile(
-  path.normalize(app.getPath("appData") + "/musichub/configuration.json"),
-  "utf8",
-  function(err, content) {
+renderGitGraph();
+renderGitGraph();
+
+function renderGitGraph() {
+  let configurationFilePath = require("path").normalize(
+    app.getPath("appData") + "/musichub/configuration.json"
+  );
+  fs.readFile(configurationFilePath, "utf8", function(err, content) {
     config = JSON.parse(content);
-    git(config.scorePath).log({ file: config.lastScore }, (err, log) => {
-      if (log !== null) {
-        let commitsJSON = {};
-        commitsJSON.commits = log.all.map(x => {
-          return {
-            sha: x.hash,
-            author: x.author_name + " <" + x.author_email + ">",
-            date: x.date,
-            message: x.message
-          };
-        });
 
-        commitCount = log.total;
-        let commits = commitsJSON.commits;
-        var config = {
-          template: "blackarrow", // could be: "blackarrow" or "metro" or `myTemplate` (custom Template object)
-          reverseArrow: true, // to make arrows point to ancestors, if displayed
-          orientation: "vertical",
-          initCommitOffsetX: -20,
-          initCommitOffsetY: -20
-        };
-        let gitGraphObj = new window.GitGraph(config);
-
-        // Create branch named "master"
-        var master = gitGraphObj.branch("master");
-
-        for (let i = 0; i < commits.length; i++) {
-          gitGraphObj.commit({
-            sha1: commits[i].sha,
-            message: commits[i].message,
-            author: commits[i].author,
-            date: commits[i].date,
-            messageHashDisplay: false,
-            messageAuthorDisplay: false,
-            messageBranchDisplay: false,
-            messageDisplay: true,
-            dotStrokeColor: pickedCommitColor,
-            dotColor: pickedCommitColor,
-            onClick: handleCommitClick
+    if (config.lastScore === undefined) {
+      document.getElementById("sideBarContainer").innerText =
+        "You need to set up score to track";
+      return;
+    } else {
+      git(config.scorePath).log({ file: config.lastScore }, (err, log) => {
+        git(config.scorePath).diff(['--name-only'], (err, diffLog) => {
+          let gitGraphObj = new window.GitGraph({
+            template: "blackarrow", // could be: "blackarrow" or "metro" or `myTemplate` (custom Template object)
+            reverseArrow: true, // to make arrows point to ancestors, if displayed
+            orientation: "vertical",
+            initCommitOffsetX: -20,
+            initCommitOffsetY: -20
           });
-        }
-      }
-    });
-  }
-);
+  
+          // Create branch named "master"
+          var master = gitGraphObj.branch("master");
+  
+          if (log !== null) {
+            let commitsJSON = {};
+            commitsJSON.commits = log.all.map(x => {
+              return {
+                sha: x.hash,
+                author: x.author_name + " <" + x.author_email + ">",
+                date: x.date,
+                message: x.message
+              };
+            });
+  
+            commitCount = log.total;
+            let commits = commitsJSON.commits;
+  
+            if (diffLog.includes(require("path").basename(config.lastScore))) {
+              newChangeExist = true;
+              gitGraphObj.commit({
+                message: "You have new change to commit!",
+                messageHashDisplay: false,
+                messageAuthorDisplay: false,
+                messageBranchDisplay: false,
+                messageDisplay: true,
+                dotStrokeColor: newCommitColor,
+                dotColor: newCommitColor
+              });
+            }
+
+            for (let i = 0; i < commits.length; i++) {
+              gitGraphObj.commit({
+                sha1: commits[i].sha,
+                message: commits[i].message,
+                author: commits[i].author,
+                date: commits[i].date,
+                messageHashDisplay: false,
+                messageAuthorDisplay: false,
+                messageBranchDisplay: false,
+                messageDisplay: true,
+                dotStrokeColor: pickedCommitColor,
+                dotColor: pickedCommitColor,
+                onClick: handleCommitClick
+              });
+            }
+          } else {
+            newChangeExist = true;
+            gitGraphObj.commit({
+              message: "You have new change to commit!",
+              messageHashDisplay: false,
+              messageAuthorDisplay: false,
+              messageBranchDisplay: false,
+              messageDisplay: true,
+              dotStrokeColor: newCommitColor,
+              dotColor: newCommitColor
+            });
+          }
+        });
+      });
+    }
+  });
+}
 
 function handleCommitClick(commit) {
   if (commitIsInArray(commit, commitArray)) {
@@ -93,7 +131,9 @@ function handleCommitClick(commit) {
   commit.messageDisplay = true;
 }
 
-$("#confirmBtn").click(function() {
+$("#confirmBtn").click(function(event) {
+  event.preventDefault();
+
   if (commitArray.length === 1 && commitCount === 1) {
     document.getElementById("sheetContainer1").innerText = "Empty!";
     document.getElementById("sheetContainer2").innerText =
@@ -132,8 +172,6 @@ $("#confirmBtn").click(function() {
         });
       });
     });
-
-    $(".ui.sidebar").sidebar("toggle");
   }
 });
 
@@ -156,18 +194,19 @@ function removeCommitFromArray(commit, commitArray) {
   return false;
 }
 
-document.getElementById("home").addEventListener('click', (event) => {
-  $('.ui.wide.sidebar').sidebar('setting', 'transition', 'push').sidebar('toggle');
-}, false);
-
-document.addEventListener('keyup', (event) => {
-  /* g */
-  if (event.keyCode === 71) {
-    $('.ui.wide.sidebar').sidebar('setting', 'transition', 'push').sidebar('toggle');
+document.getElementById("commitButton").addEventListener('click', () => {
+  let descriptionBox = document.getElementById("descriptionBox");
+  let message = descriptionBox.value;
+  if (newChangeExist) {
+    git(config.scorePath).add(config.lastScore).commit(message, () => {
+      newChangeExist = false;
+      renderGitGraph();
+    });
+  } else {
+    alert("No change available yet!");
   }
-}, false);
+});
 
-document.getElementById("commitButton").addEventListener("click", (event) => {
-  //document.getElementById("nameBox").getAttribute("value")
-  //whatever commit is
-})
+document.getElementById("home").addEventListener('click', (event) => {
+  $('.ui.wide.sidebar').sidebar('setting', 'transition', 'push').sidebar('setting', 'dimPage', false).sidebar('toggle');
+}, false);

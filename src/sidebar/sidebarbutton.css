@@ -1,6 +1,7 @@
-#home {
+#home, #confirmBtn {
     font-size: 13px;
-    background-color: darkgray
+    background-color: #24292e;
+    color: white;
 }
 
 /* #compareButton {

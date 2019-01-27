@@ -5,7 +5,7 @@ $('#currentFile').ready(() => {
   let config = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
   let fileName = "No file selected"
   if (config.lastScore) {
-    path = config.lastScore;
+    let path = config.lastScore;
     fileName = path.replace(/^.*[\\\/]/, '');
   }
   $('#currentFile').html(fileName);
