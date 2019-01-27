@@ -105,7 +105,7 @@ function createConfigurationFileAndScoreFolders(configPath, callback) {
   let userSettings = {};
 
   try {
-    let defaultScorePath = path.normalize(app.getPath("documents") + "/musichub"); // Default
+    let defaultScorePath = path.normalize(app.getPath("documents") + "/MusicHubScores"); // Default
     let userResponse = dialog.showMessageBox(
       { 
         "buttons":["Custom", "Default"],
