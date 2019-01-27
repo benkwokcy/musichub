@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 var fs = require('fs');
+var path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -67,7 +68,8 @@ initialSetup()
 // This configuration will be stored in the environment's user data folder.
 // ex for Mac: /Users/<userName>/Library/Application Support/Electron
 function initialSetup() {
-	let configPath = app.getPath("appData") + "/musichub/configuration.json"; // hardcoded
+  // check if config exists
+  let configPath = path.normalize(app.getPath("appData") + "/musichub/configuration.json"); // hardcoded
   // let configPath = app.getPath("userData") + "/configuration.json"; // non-hardcoded but defaults to Electron folder
   console.log(configPath);
 	if (isConfigExists(configPath)) { 
@@ -94,8 +96,8 @@ function isConfigExists(configPath) {
 
 function getUserSettings() {
   let userSettings = {};
-	userSettings.scorePath = app.getPath("documents") + "/musichub" // Default
-	// TODO: Open modal
+	userSettings.scorePath = path.normalize(app.getPath("documents") + "/musichub"); // Default
+  // TODO: Open modal
 
 	return userSettings;
 }
