@@ -20,9 +20,6 @@ const createWindow = () => {
     height: 600,
   });
 
-  let configPath = path.normalize(app.getPath("appData") + "/musichub/configuration.json"); // hardcoded
-  mainWindow.webContents.send('store-data', configPath);
-
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 

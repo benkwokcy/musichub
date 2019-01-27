@@ -1,9 +1,11 @@
-import { app, BrowserWindow } from 'electron';
 let pickedCommitColor = "#166ef3";
 let defaultCommitColor = "#ca0914";
 const git = require("simple-git");
 var fs = require("fs");
 var path = require("path");
+
+const remote = require("electron").remote;
+const app = remote.app;
 
 let commitCount = 0;
 let commitArray = [];
@@ -12,60 +14,63 @@ let config = {};
 require("../node_modules/gitgraph.js/build/gitgraph.js");
 let opensheetmusicdisplay = require("../node_modules/opensheetmusicdisplay/build/opensheetmusicdisplay.min.js");
 
-var ipcRenderer = require('electron').ipcRenderer;
-ipcRenderer.on('store-data', function (event,store) {
-  fs.readFile(store.scorePath, 'utf8', function(err, content) {
+fs.readFile(
+  path.normalize(app.getPath("appData") + "/musichub/configuration.json"),
+  "utf8",
+  function(err, content) {
     config = JSON.parse(content);
-    git(config.scorePath).log({file: config.lastScore}, (err, log) => {
-      let commitsJSON = {};
-      commitsJSON.commits = log.all.map(x => {
-        return {
-          sha: x.hash,
-          author: x.author_name + " <" + x.author_email + ">",
-          date: x.date,
-          message: x.message
-        };
-      });
-  
-      commitCount = log.total;
-      let commits = commitsJSON.commits;
-      var config = {
-        template: "blackarrow", // could be: "blackarrow" or "metro" or `myTemplate` (custom Template object)
-        reverseArrow: true, // to make arrows point to ancestors, if displayed
-        orientation: "vertical",
-        initCommitOffsetX: -20,
-        initCommitOffsetY: -20
-      };
-      let gitGraphObj = new window.GitGraph(config);
-    
-      // Create branch named "master"
-      var master = gitGraphObj.branch("master");
-    
-      for (let i = 0; i < commits.length; i++) {
-        gitGraphObj.commit({
-          sha1: commits[i].sha,
-          message: commits[i].message,
-          author: commits[i].author,
-          date: commits[i].date,
-          messageHashDisplay: false,
-          messageAuthorDisplay: false,
-          messageBranchDisplay: false,
-          messageDisplay: true,
-          dotStrokeColor: pickedCommitColor,
-          dotColor: pickedCommitColor,
-          onClick: handleCommitClick,
+    git(config.scorePath).log({ file: config.lastScore }, (err, log) => {
+      if (log !== null) {
+        let commitsJSON = {};
+        commitsJSON.commits = log.all.map(x => {
+          return {
+            sha: x.hash,
+            author: x.author_name + " <" + x.author_email + ">",
+            date: x.date,
+            message: x.message
+          };
         });
+
+        commitCount = log.total;
+        let commits = commitsJSON.commits;
+        var config = {
+          template: "blackarrow", // could be: "blackarrow" or "metro" or `myTemplate` (custom Template object)
+          reverseArrow: true, // to make arrows point to ancestors, if displayed
+          orientation: "vertical",
+          initCommitOffsetX: -20,
+          initCommitOffsetY: -20
+        };
+        let gitGraphObj = new window.GitGraph(config);
+
+        // Create branch named "master"
+        var master = gitGraphObj.branch("master");
+
+        for (let i = 0; i < commits.length; i++) {
+          gitGraphObj.commit({
+            sha1: commits[i].sha,
+            message: commits[i].message,
+            author: commits[i].author,
+            date: commits[i].date,
+            messageHashDisplay: false,
+            messageAuthorDisplay: false,
+            messageBranchDisplay: false,
+            messageDisplay: true,
+            dotStrokeColor: pickedCommitColor,
+            dotColor: pickedCommitColor,
+            onClick: handleCommitClick
+          });
+        }
       }
     });
-  });
-});
+  }
+);
 
 function handleCommitClick(commit) {
   if (commitIsInArray(commit, commitArray)) {
     removeCommitFromArray(commit, commitArray);
   } else {
     if (commitArray.length >= 2) {
-      alert('Already choose two commits!');
+      alert("Already choose two commits!");
       return;
     } else {
       commitArray.push(commit);
@@ -90,8 +95,9 @@ function handleCommitClick(commit) {
 
 $("#confirmBtn").click(function() {
   if (commitArray.length === 1 && commitCount === 1) {
-    document.getElementById('sheetContainer1').innerText = "Empty!";
-    document.getElementById('sheetContainer2').innerText = commitArray[0].message;
+    document.getElementById("sheetContainer1").innerText = "Empty!";
+    document.getElementById("sheetContainer2").innerText =
+      commitArray[0].message;
     $(".ui.sidebar").sidebar("toggle");
     return;
   }
@@ -106,8 +112,8 @@ $("#confirmBtn").click(function() {
       commitArray[1] = temp;
     }
 
-    let option1 = commitArray[0].sha1 + ':' + config.lastScore;
-    let option2 = commitArray[1].sha1 + ':' + config.lastScore;
+    let option1 = commitArray[0].sha1 + ":" + config.lastScore;
+    let option2 = commitArray[1].sha1 + ":" + config.lastScore;
 
     git(config.scorePath).show(option1, function(err, content1) {
       git(config.scorePath).show(option2, function(err, content2) {
@@ -126,7 +132,7 @@ $("#confirmBtn").click(function() {
         });
       });
     });
-    
+
     $(".ui.sidebar").sidebar("toggle");
   }
 });
